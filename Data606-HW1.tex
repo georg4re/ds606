@@ -1,0 +1,149 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={Data606-HW1},
+  pdfauthor={George Cruz},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+
+\title{Data606-HW1}
+\author{George Cruz}
+\date{9/5/2020}
+
+\begin{document}
+\maketitle
+
+\hypertarget{introduction-to-data}{%
+\subsection{Introduction to Data}\label{introduction-to-data}}
+
+1.a. The rows are named a \emph{case} or \emph{observational unit}. 1.b.
+Apparently, 1691 participants. 1.c. Variables: \emph{sex}. categorical,
+nominal. \emph{age}. numerical, discrete. \emph{marital}. categorial,
+nominal. \emph{grossIncome}. categorical,ordinal. \emph{smoke}.
+categorical, nominal. \emph{amtWeekends}. numerical, discrete. (I think
+it can be averaged and summarized) \emph{amtWeekdays}. numerical,
+discrete.
+
+\hypertarget{cheaters-scope-of-inference}{%
+\subsubsection{Cheaters, scope of
+inference}\label{cheaters-scope-of-inference}}
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\tightlist
+\item
+  Population is all children between 5 and 15 years old. The sample is
+  160 children between those ages.
+\item
+  The researchers conducted an experiment in which they have no way of
+  verifying the answers received. Their goal was to study the
+  relationship between honesty, age and self-control but they gave
+  themselves little control on how to measure that relationship.
+  Granted, you could assume the number of white answers to average 50\%
+  and consider any deviation from it to be cheating. This does not
+  really guarantee accuracy. I don't believe a causal relationship can
+  be established. In terms of generalization, we don't know the
+  composition of the sample and if it really represents the population.
+\end{enumerate}
+
+\hypertarget{readind-the-paper}{%
+\subsubsection{Readind the paper}\label{readind-the-paper}}
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\tightlist
+\item
+  No.~Correlation does not imply causality. To establish causality, we
+  would need to perform an experiment with a random sample and not only
+  with voluntary supplied data.
+\end{enumerate}
+
+(b)Again, a correlation does not imply causality. At most, we can
+establish that there is correlation between sleep disorders and bullying
+not that one causes the other. There could be one or more variables that
+cause these two issues and cannot be determined by the data collected.
+
+\hypertarget{exercise-and-mental-health}{%
+\subsubsection{Exercise and mental
+health}\label{exercise-and-mental-health}}
+
+\begin{enumerate}
+\def\labelenumi{(\alph{enumi})}
+\tightlist
+\item
+  Blocked randomized controlled experiment
+\item
+  Treatment group: the participants who were instructed to exercise.
+  Control group: participants who were instructed not to exercise.
+\item
+  Yes, age is the blocking variable.
+\item
+  No.~
+\item
+  The experiment design appears to be correct. The way the experiment is
+  designed will only allow us to determine a causal relationship between
+  exercise and mental health moving forward, as we do not know the
+  exercise habits of the participants before the experiment.
+\item
+  Yes, I believe the sample should take into consideration exercise
+  habits before the experiment and randomly distribute the individuals
+  into treatment and control group to properly measure the effects of
+  exercise(or lack thereof) on mental health not only on age groups but
+  also based on prior exercising habits.
+\end{enumerate}
+
+\end{document}

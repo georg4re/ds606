@@ -1,0 +1,79 @@
+---
+title: "Lab 3"
+author: "George Cruz"
+date: "`r Sys.Date()`"
+output: openintro::lab_report
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+```
+
+### Exercise 1
+
+A streak of 1 means 1 hit.  A streak of zero means a miss.
+
+
+### Exercise 2
+```{r}
+kobe_streak <- calc_streak(kobe_basket$shot)
+ggplot(data = kobe_streak, aes(x = length)) +
+  geom_bar()
+```
+The distribution is right-skewed.  The typical streak length was 0 and the longest streak is 4.
+
+### Exercise 3
+```{r}
+coin_outcomes <- c("heads", "tails")
+sample(coin_outcomes, size = 1, replace = TRUE)
+
+sim_fair_coin <- sample(coin_outcomes, size = 100, replace = TRUE)
+
+sim_fair_coin
+table(sim_fair_coin)
+
+
+```
+```{r}
+set.seed(989) 
+sim_unfair_coin <- sample(coin_outcomes, size = 100, replace = TRUE, 
+                          prob = c(0.2, 0.8))
+table(sim_unfair_coin)
+```
+Only 11 times did the unfair coin come up heads. 
+
+### Exercise 4
+What change needs to be made to the sample function so that it reflects a shooting percentage of 45%? Make this adjustment, then run a simulation to sample 133 shots. Assign the output of this simulation to a new object called sim_basket.
+
+```{r}
+set.seed(100)
+shot_outcomes <- c("H", "M")
+sim_basket <- sample(shot_outcomes, size = 133, replace = TRUE, prob=c(0.45, 0.55))
+table(sim_basket)
+```
+I added the seed so the values did not change.
+
+### Exercise 5
+```{r}
+sim_streak <- calc_streak(sim_basket)
+
+```
+
+### Exercise 6
+```{r}
+ggplot(data = sim_streak, aes(x = length)) +
+  geom_bar()
+```
+
+Distribution is right-skewed, longest streak was 6 and typical streak was 0. 
+
+### Exercise 7
+I would expect a similar distribution. 
+
+### Exercise 8 
+The distributions are somewhat similar between Kobe and the simulation.  The longest streak is somewhat different which lets me to believe Kobe doesn't fit the hot hand model. 
+
+
+
+

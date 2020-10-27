@@ -1,0 +1,261 @@
+---
+title: "DS606-HW4-GC"
+author: "George Cruz"
+date: "9/28/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(openintro)
+library(scales)
+library(DATA606)
+```
+
+
+### Area under the curve part I. (4.1 p. 142)
+**Area under the curve, Part I**. (4.1, p. 142) What percent of a standard normal distribution $N(\mu=0, \sigma=1)$ is found in each region? Be sure to draw a graph.
+
+(a) $Z < -1.35$
+```{r}
+scales::percent(pnorm(-1.35), accuracy = 0.01)
+```
+```{r}
+normalPlot(mean=0, sd = 1, bounds = c(-1.35, Inf), tails = TRUE)
+```
+
+(b) $Z > 1.48$
+```{r}
+scales::percent(1-pnorm(1.48), accuracy = 0.01)
+```
+```{r}
+normalPlot(mean=0, sd = 1, bounds = c(1.48, Inf), tails = FALSE)
+```
+
+(c) $-0.4 < Z < 1.5$
+```{r}
+higher = pnorm(1.5)
+lower = pnorm(-0.4)
+
+scales::percent(higher-lower, accuracy = 0.01)
+```
+
+```{r}
+normalPlot(mean=0, sd = 1, bounds = c(-0.4, 1.5), tails = FALSE)
+```
+
+(d) $|Z| > 2$
+```{r}
+higher = 1-pnorm(2)
+lower = pnorm(-2)
+
+scales::percent(higher+lower, accuracy = 0.01)
+```
+
+
+```{r code-chunk-label}
+normalPlot(mean=0, sd = 1, bounds = c(-2, 2), tails = TRUE)
+```
+
+### Triathlon times, Part I
+**Triathlon times, Part I** (4.4, p. 142) In triathlons, it is common for racers to be placed into age and gender groups. Friends Leo and Mary both completed the Hermosa Beach Triathlon, where Leo competed in the *Men, Ages 30 - 34* group while Mary competed in the *Women, Ages 25 - 29* group. Leo completed the race in 1:22:28 (4948 seconds), while Mary completed the race in 1:31:53 (5513 seconds). Obviously Leo finished faster, but they are curious about how they did within their respective groups. Can you help them? Here is some information on the performance of their groups:
+
+* The finishing times of the \textit{Men, Ages 30 - 34} group has a mean of 4313 seconds with a standard deviation of 583 seconds.
+* The finishing times of the \textit{Women, Ages 25 - 29} group has a mean of 5261 seconds with a standard deviation of 807 seconds.
+* The distributions of finishing times for both groups are approximately Normal.
+
+Remember: a better performance corresponds to a faster finish.
+
+**(a) Write down the short-hand for these two normal distributions.**
+For Men (Leo’s Group): N(µ = 4313, σ = 583)
+For Women (Mary’s Group): N(µ = 5261, σ = 807)
+
+**(b) What are the Z-scores for Leo's and Mary's finishing times? What do these Z-scores tell you?**
+```{r}
+Leo_Z <- (4948 - 4313)/583
+Leo_Z
+```
+
+```{r}
+Mary_Z <- (5513 - 5261)/807
+Mary_Z
+```
+Both Leo's and Mary's Z-Scores are above the mean.  Leo is 1.09 SD above the mean while Mary is only 0.31 SD above the mean. 
+
+**(c) Did Leo or Mary rank better in their respective groups? Explain your reasoning.**
+Because Mary's Z-Score is lower than Leo's, it indicates that she did better among her group than Leo did even though Leo ran faster than Mary. 
+
+**(d) What percent of the triathletes did Leo finish faster than in his group?**
+```{r}
+scales::percent(1-pnorm(4948, mean=4313, sd=583), accuracy = 0.01)
+```
+*Leo ran faster than 13.8% of his competitors*
+
+**(e) What percent of the triathletes did Mary finish faster than in her group?**
+```{r}
+scales::percent(1-pnorm(5513, mean=5261, sd=807), accuracy = 0.01)
+```
+*Mary ran faster than 37.74% of her competitors*
+
+**(f) If the distributions of finishing times are not nearly normal, would your answers to parts (b) - (e) change? Explain your reasoning.**
+
+The Z-Scores (answer b) will be the same.  We would not be able to calculate the other answers in a non-normal distribution. 
+
+### Heights of Female College Students
+**Heights of female college students** Below are heights of 25 female college students.
+
+\[ \stackrel{1}{54}, \stackrel{2}{55}, \stackrel{3}{56}, \stackrel{4}{56}, 
+\stackrel{5}{57}, \stackrel{6}{58}, \stackrel{7}{58}, \stackrel{8}{59}, 
+\stackrel{9}{60}, \stackrel{10}{60}, \stackrel{11}{60}, \stackrel{12}{61}, 
+\stackrel{13}{61}, \stackrel{14}{62}, \stackrel{15}{62}, \stackrel{16}{63}, 
+\stackrel{17}{63}, \stackrel{18}{63}, \stackrel{19}{64}, \stackrel{20}{65}, 
+\stackrel{21}{65}, \stackrel{22}{67}, \stackrel{23}{67}, \stackrel{24}{69}, 
+\stackrel{25}{73} \]
+
+**(a) The mean height is 61.52 inches with a standard deviation of 4.58 inches. Use this information to determine if the heights approximately follow the 68-95-99.7% Rule.**
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE, fig.show="hold", out.width="50%", fig.height=3}
+library(openintro)
+heights <- c(54, 55, 56, 56, 57, 58, 58, 59, 60, 60, 60, 61, 
+            61, 62, 62, 63, 63, 63, 64, 65, 65, 67, 67, 69, 73)
+par(mar=c(3.7,2.2,1,1), las=1, mgp=c(2.5,0.7,0), mfrow = c(1,1), cex.lab = 1.5, cex.axis = 1.5)
+histPlot(heights, col = COL[1], xlab = "Heights", ylab = "", probability = TRUE, axes = FALSE, ylim = c(0,0.085))
+axis(1)
+x <- heights
+xfit <- seq(min(x)-5, max(x)+5, length = 400)
+yfit <- dnorm(xfit, mean = mean(x), sd = sd(x))
+lines(xfit, yfit, col = COL[4], lwd = 2)
+par(mar=c(3.7,3.7,1,1), las=1, mgp=c(2.5,0.7,0), mfrow = c(1,1), cex.lab = 1.5, cex.axis = 1.5)
+qqnorm(heights, col = COL[1], pch = 19, main = "", axes = FALSE)
+axis(1)
+axis(2)
+qqline(heights, col = COL[1])
+```
+
+```{r}
+# Use the DATA606::qqnormsim function
+
+qqnormsim(heights)
+```
+
+*Do 68% lie  within 1 standard deviation?*
+```{r}
+height_avg <- mean(heights)
+height_sd <- sd(heights)
+scales::percent(1-2*pnorm(height_avg+ height_sd, mean = height_avg, sd = height_sd, lower.tail = FALSE), accuracy = 0.01)
+```
+*Do 95% lie  within 2 standard deviations?*
+```{r}
+scales::percent(1-2*pnorm(height_avg+ 2*height_sd, mean = height_avg, sd = height_sd, lower.tail = FALSE), accuracy = 0.01)
+```
+*Do 99.7% lie  within 3 standard deviations?*
+```{r}
+scales::percent(1-2*pnorm(height_avg+ 3*height_sd, mean = height_avg, sd = height_sd, lower.tail = FALSE), accuracy = 0.01)
+```
+Based on the previous results,yes, the heights follow approximately the 68-95-99.7% Rule.
+
+**(b) Do these data appear to follow a normal distribution? Explain your reasoning using the graphs provided above.**
+Based on the histogram and the normal probability plots, even if it's not a perfectly normal distribution it is a normal distribution.  
+
+### Defective Rate.
+**Defective rate.** (4.14, p. 148) A machine that produces a special type of transistor (a component of computers) has a 2% defective rate. The production is considered a random process where each transistor is independent of the others.
+
+**(a) What is the probability that the 10th transistor produced is the first with a defect?**
+```{r}
+def_rate <- 0.02
+(1-def_rate)**(10-1)*def_rate
+```
+**(b) What is the probability that the machine produces no defective transistors in a batch of 100?**
+```{r}
+(1-def_rate)**100
+```
+
+**(c) On average, how many transistors would you expect to be produced before the first with a defect? **
+```{r}
+1/def_rate
+```
+**What is the standard deviation?**
+```{r}
+sqrt((1-def_rate)/(def_rate**2))
+```
+
+**(d) Another machine that also produces transistors has a 5% defective rate where each** **transistor**
+**is produced independent of the others. On average how many transistors would you expect to be produced with this machine before the first with a defect?**
+```{r}
+1/0.05
+```
+
+**What is the standard deviation?**
+
+```{r}
+sqrt((1-0.05)/(0.05**2))
+```
+
+
+**(e) Based on your answers to parts (c) and (d), how does increasing the probability of an event affect the mean and standard deviation of the wait time until success?**
+
+The mean and the standard deviation are inversely proportional to the probability.
+
+### Male Children
+**Male children.** While it is often assumed that the probabilities of having a boy or a girl are the same, the actual probability of having a boy is slightly higher at 0.51. Suppose a couple plans to have 3 kids.
+
+**(a) Use the binomial model to calculate the probability that two of them will be boys.**
+```{r}
+p = 0.51
+k = 2
+n = 3
+
+fact_k <- factorial(k)
+fact_n <- factorial(n)
+fact_nk <- factorial(n-k)
+
+(fact_n / (fact_k * fact_nk)) * p ** k * ( 1-p)**(n-k)
+
+```
+
+**(b) Write out all possible orderings of 3 children, 2 of whom are boys. Use these scenarios to calculate the same probability from part (a) but using the addition rule for disjoint outcomes. Confirm that your answers from parts (a) and (b) match.**
+```{r}
+ord_1 <- c("boy", "boy", "girl")
+ord_2 <- c("boy", "girl", "boy")
+ord_3 <- c("girl", "boy", "boy")
+
+( p * p * (1-p)) + ( p * (1-p) * p ) + ((1-p) * p * p ) 
+```
+
+
+**(c) If we wanted to calculate the probability that a couple who plans to have 8 kids will have 3 boys, briefly describe why the approach from part (b) would be more tedious than the approach from part (a).**
+
+Because it would increase the sequence of numbers we would need to multiply and add to get the value.  We would also need to account for all the possible permutations of 8 kids with 3 being boys.  
+
+
+### Serving in Volleyball
+**Serving in volleyball.** (4.30, p. 162) A not-so-skilled volleyball player has a 15% chance of making the serve, which involves hitting the ball so it passes over the net on a trajectory such that it will land in the opposing team's court. Suppose that her serves are independent of each other.
+
+**(a) What is the probability that on the 10th try she will make her 3rd successful serve?**
+```{r}
+n <- 10
+k <- 3
+p <- 0.15
+
+fact_n <- factorial(n-1)
+fact_k <- factorial(k-1)
+fact_nk <- factorial(n-k)
+
+fact_n/(fact_k * fact_nk) * p ** k * (1-p)**(n-k)
+
+```
+
+**(b) Suppose she has made two successful serves in nine attempts. What is the probability that her 10th serve will be successful?**
+15%
+
+**(c) Even though parts (a) and (b) discuss the same scenario, the probabilities you calculated should be different. Can you explain the reason for this discrepancy?**
+On b we're calculating for a single independent event, in a, we're calculating for a sequence of events to happen within 10 occurences.
+
+
+
+
+
+
+
+

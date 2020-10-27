@@ -1,0 +1,103 @@
+---
+title:"DS606-Homework 4"
+author: "Author Name"
+date: "`r Sys.Date()`"
+output: openintro::lab_report
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+library(scales)
+library(DATA606)
+```
+
+### Area under the curve part I. (4.1 p. 142)
+**Area under the curve, Part I**. (4.1, p. 142) What percent of a standard normal distribution $N(\mu=0, \sigma=1)$ is found in each region? Be sure to draw a graph.
+
+(a) $Z < -1.35$
+```{r}
+scales::percent(pnorm(-1.35), accuracy = 0.01)
+```
+```{r}
+normalPlot(mean=0, sd = 1, bounds = c(-1.35, Inf), tails = TRUE)
+```
+
+(b) $Z > 1.48$
+```{r}
+scales::percent(1-pnorm(1.48), accuracy = 0.01)
+```
+```{r}
+normalPlot(mean=0, sd = 1, bounds = c(1.48, Inf), tails = FALSE)
+```
+
+(c) $-0.4 < Z < 1.5$
+```{r}
+higher = pnorm(1.5)
+lower = pnorm(-0.4)
+
+scales::percent(higher-lower, accuracy = 0.01)
+```
+
+```{r}
+normalPlot(mean=0, sd = 1, bounds = c(-0.4, 1.5), tails = FALSE)
+```
+
+(d) $|Z| > 2$
+```{r}
+higher = 1-pnorm(2)
+lower = pnorm(-2)
+
+scales::percent(higher+lower, accuracy = 0.01)
+```
+
+
+```{r code-chunk-label}
+normalPlot(mean=0, sd = 1, bounds = c(-2, 2), tails = TRUE)
+```
+
+### Triathlon times, Part I
+**Triathlon times, Part I** (4.4, p. 142) In triathlons, it is common for racers to be placed into age and gender groups. Friends Leo and Mary both completed the Hermosa Beach Triathlon, where Leo competed in the *Men, Ages 30 - 34* group while Mary competed in the *Women, Ages 25 - 29* group. Leo completed the race in 1:22:28 (4948 seconds), while Mary completed the race in 1:31:53 (5513 seconds). Obviously Leo finished faster, but they are curious about how they did within their respective groups. Can you help them? Here is some information on the performance of their groups:
+
+* The finishing times of the \textit{Men, Ages 30 - 34} group has a mean of 4313 seconds with a standard deviation of 583 seconds.
+* The finishing times of the \textit{Women, Ages 25 - 29} group has a mean of 5261 seconds with a standard deviation of 807 seconds.
+* The distributions of finishing times for both groups are approximately Normal.
+
+Remember: a better performance corresponds to a faster finish.
+
+**(a) Write down the short-hand for these two normal distributions.**
+For Men (Leo’s Group): N(µ = 4313, σ = 583)
+For Women (Mary’s Group): N(µ = 5261, σ = 807)
+
+**(b) What are the Z-scores for Leo's and Mary's finishing times? What do these Z-scores tell you?**
+```{r}
+Leo_Z <- (4948 - 4313)/583
+Leo_Z
+```
+
+```{r}
+Mary_Z <- (5513 - 5261)/807
+Mary_Z
+```
+Both Leo's and Mary's Z-Scores are above the mean.  Leo is 1.09 SD above the mean while Mary is only 0.31 SD above the mean. 
+
+**(c) Did Leo or Mary rank better in their respective groups? Explain your reasoning.**
+Because Mary's Z-Score is lower than Leo's, it indicates that she did better among her group than Leo did even though Leo ran faster than Mary. 
+
+**(d) What percent of the triathletes did Leo finish faster than in his group?**
+```{r}
+scales::percent(1-pnorm(4948, mean=4313, sd=583), accuracy = 0.01)
+```
+*Leo ran faster than 13.8% of his competitors*
+
+**(e) What percent of the triathletes did Mary finish faster than in her group?**
+```{r}
+scales::percent(1-pnorm(5513, mean=5261, sd=807), accuracy = 0.01)
+```
+*Mary ran faster than 37.74% of her competitors*
+
+**(f) If the distributions of finishing times are not nearly normal, would your answers to parts (b) - (e) change? Explain your reasoning.**
+
+The Z-Scores (answer b) will be the same.  We would not be able to calculate the other answers in a non-normal distribution. 
+...
+

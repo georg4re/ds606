@@ -1,0 +1,255 @@
+---
+title: "DS606-Lab 6"
+author: "George Cruz"
+date: "`r Sys.Date()`"
+output: openintro::lab_report
+---
+
+#Inference for categorical data
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+library(infer)
+library(scales)
+```
+
+### Exercise 1
+
+What are the counts within each category for the amount of days these students have texted while driving within the past 30 days?
+
+```{r code-chunk-label}
+data(yrbss)
+
+text_while_driving <- yrbss %>%
+  filter(text_while_driving_30d == 30)
+
+summary(text_while_driving)
+```
+
+```{r}
+twd_counts <- yrbss %>%
+  count(text_while_driving_30d) %>%
+  mutate(p = n /sum(n))
+
+twd_counts
+```
+
+### Exercise 2
+What is the proportion of people who have texted while driving every day in the past 30 days and never wear helmets?
+
+```{r}
+no_helmet <- yrbss %>%
+  filter(helmet_12m == "never") %>%
+  count(text_while_driving_30d) %>%
+  mutate(p = n /sum(n))
+
+# no_helmet
+
+percent(no_helmet$p[6], accuracy = 0.01)
+```
+
+6.64% of those who drove while texting also reported no helmet.
+
+### Exercise 3
+
+```{r warning=FALSE}
+no_helmet <- yrbss %>%
+  filter(helmet_12m == "never")
+
+no_helmet <- no_helmet %>%
+  mutate(text_ind = ifelse(text_while_driving_30d == "30", "yes", "no"))
+
+no_helmet %>%
+  specify(response = text_ind, success = "yes") %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "prop") %>%
+  get_ci(level = 0.95)
+```
+
+### Exercise 3
+What is the margin of error for the estimate of the proportion of non-helmet wearers that have texted while driving each day for the past 30 days based on this survey?
+
+```{r}
+p <- 463/6977
+cv <- 1.96
+n <- 6977
+
+me <- 1.96 * sqrt((p*(1-p))/n)
+
+me
+
+```
+
+ME = 0.00584
+
+### Exercise 4
+Using the infer package, calculate confidence intervals for two other categorical variables (you’ll need to decide which level to call “success”, and report the associated margins of error. Interpet the interval in context of the data. It may be helpful to create new data sets for each of the two countries first, and then use these data sets to construct the confidence intervals.
+
+```{r warnings=FALSE}
+good_sleep <- yrbss %>%
+  mutate(slept_well = ifelse(school_night_hours_sleep > 5, "yes", "no") )
+
+good_sleep %>%
+  specify(response = slept_well, success = "yes") %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "prop") %>%
+  get_ci(level = 0.95)
+
+```
+
+```{r}
+
+total_slept <- good_sleep %>%
+  filter(!is.na(slept_well)) %>%
+  count(slept_well) %>%
+  mutate( p = n/sum(n))
+
+p <- 0.7761654
+cv <- 1.96
+n <- 12335
+
+me <- 1.96 * sqrt((p*(1-p))/n)
+
+me
+```
+
+ME= 0.007355
+
+```{r}
+
+no_tv <- yrbss %>%
+  mutate(did_not_watch = ifelse(hours_tv_per_school_day == "do not watch", "yes", "no") )
+
+no_tv %>%
+  specify(response = did_not_watch, success = "yes") %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "prop") %>%
+  get_ci(level = 0.95)
+
+```
+
+
+```{r}
+total_no_tv <- no_tv %>%
+  filter(!is.na(did_not_watch)) %>%
+  count(did_not_watch) %>%
+  mutate( p = n/sum(n))
+
+p <- 0.1389203
+cv <- 1.96
+n <- 13245
+
+me <- 1.96 * sqrt((p*(1-p))/n)
+
+me
+```
+
+ME = 0.00589
+
+
+### Exercise 5
+Describe the relationship between p and me. Include the margin of error vs. population proportion plot you constructed in your answer. For a given sample size, for which value of p is margin of error maximized?
+
+
+```{r}
+n <- 1000
+
+p <- seq(from = 0, to = 1, by = 0.01)
+me <- 2 * sqrt(p * (1 - p)/n)
+
+dd <- data.frame(p = p, me = me)
+ggplot(data = dd, aes(x = p, y = me)) + 
+  geom_line() +
+  labs(x = "Population Proportion", y = "Margin of Error")
+
+```
+
+The margin of error appears to increase as the population proportion increases until the population proportion **reaches 50%**, from that point on, the margin of error decreases as the ME increases.
+
+### Exercise 6
+Describe the sampling distribution of sample proportions at n=300 and p=0.1. Be sure to note the center, spread, and shape.
+
+```{r}
+p <- 0.1
+n <- 300
+p_hats <- rep(0, 1000)
+
+for (i in 1:1000) {
+    samp <- sample(c("A", "B"), n, replace = TRUE, 
+        prob = c(p, 1 - p))
+    p_hats[i] <- sum(samp == "A")/n
+}
+
+hist(p_hats, main = "p = 0.1, n = 300", xlim = c(0, 0.2))
+```
+
+The sampling distribution appears normal, unimodal, centered at around 0.1 with values between 0.04 and 0.16.
+
+### Exercise 7
+Keep n constant and change p. How does the shape, center, and spread of the sampling distribution vary as p changes. You might want to adjust min and max for the x-axis for a better view of the distribution.
+
+```{r}
+
+p <- 0.15
+n <- 300
+p_hats <- rep(0, 1000)
+
+for (i in 1:1000) {
+    samp <- sample(c("A", "B"), n, replace = TRUE, 
+        prob = c(p, 1 - p))
+    p_hats[i] <- sum(samp == "A")/n
+}
+
+hist(p_hats, main = "p = 0.15, n = 300", xlim = c(0, 0.30))
+
+```
+
+The spread and center of the distribution move with p.  When I tried a lower p, the shape of the distribution changed slightly but still appeared normal and unimodal. 
+
+### Exercise 8
+Now also change n. How does n appear to affect the distribution of p^?
+
+```{r}
+p <- 0.15
+n <- 50
+p_hats <- rep(0, 1000)
+
+for (i in 1:1000) {
+    samp <- sample(c("A", "B"), n, replace = TRUE, 
+        prob = c(p, 1 - p))
+    p_hats[i] <- sum(samp == "A")/n
+}
+
+hist(p_hats, main = "p = 0.15, n = 50", xlim = c(0, 0.30))
+```
+
+As n lowers, the distribution's spread grows.  If n increases the spread gets smaller. 
+
+### Exercise 9
+**Is there convincing evidence that those who sleep 10+ hours per day are more likely to strength train every day of the week? As always, write out the hypotheses for any tests you conduct and outline the status of the conditions for inference. If you find a significant difference, also quantify this difference with a confidence interval.**
+
+```{r}
+slept_10 <- yrbss %>%
+  mutate(slept_10 = ifelse(school_night_hours_sleep == "10+", "yes", "no")) %>%
+  filter(!is.na(slept_10)) %>%
+  count(slept_10) %>%
+  mutate(p = n /sum(n))
+
+slept_10
+```
+
+```{r}
+
+strength_trained <- yrbss %>%
+  mutate(trained = ifelse(strength_training_7d == 7, "yes", "no")) %>%
+  filter(!is.na(trained)) %>%
+  count(trained) %>%
+  mutate(p = n /sum(n))
+
+strength_trained
+```
+
+
+
+...
+

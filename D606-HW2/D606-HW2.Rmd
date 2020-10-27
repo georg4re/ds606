@@ -1,0 +1,59 @@
+---
+title: "DS606-HW2"
+author: "George Cruz"
+date: "`r Sys.Date()`"
+output: openintro::lab_report
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+```
+
+### Stats Scores
+
+```{r}
+statScores <- (c(57, 66, 69, 71, 72, 73, 74, 77, 78, 78, 79, 79, 81, 81, 82, 83, 83, 88, 89, 94))
+boxplot(statScores)
+```
+
+### Mix and Match
+
+(a). This histogram is symmetrical, unimodal and normally distributed.  It matches to boxplot 2. 
+(b). This histogram appears symmetrical and unimodal?, it would benefit from some data transformation to better see the info.  It matches boxplot 3. 
+(c) This histogram is unimodal, skewed to the right and matches boxplot 1. 
+
+
+### Distributions and appropiate statistics
+(a) The distribution would be right-skewed.  Based on most of the prices costing below 1 million and some houses being over 6 million.  The median and the IQR would best represent a typical observation of the data by not being as susceptible to the variability of the outliers. 
+
+(b) The distribution would be symmetrical. The mean and the standard deviation would better serve us in this case as we would have a normal distribution. 
+
+(c) This distribution would be symmetric, the mean and the standard deviation should be sufficient.  
+
+(d) This distribution would be right-skewed, the median and the IQR would allow us to better represent the observations and the variability of the higher salaries. 
+
+### Heart transplants 
+(a) Based on the mosaic plot, it would appear that survival is *not* independent of treatment.  Patients that got a transplant appear to have survived in a greater percentage than those in the control group. 
+
+(b) The box plots suggest that the heart transplant treatment is very effective in extending the survival times.
+
+```{r}
+controlAvg <- (30/34)*100
+treatmentAvg <- (45/69) * 100
+
+controlAvg 
+treatmentAvg
+```
+
+(c) About 88% of the patients in the control group died, compared to 65% in the treatment group. 
+
+(d) 
+(i) We are testing if a heart transplant will increase a patient's lifespan. 
+(ii) We write alive on 28 cards...
+and dead on 75 cards....
+two groups one of size: 69 representing treatment
+and another of size: 34 representing control. 
+Not sure how to do the rest....
+(iii) The simulated differences being so little, imply that the transplant program is indeed effective. 
+

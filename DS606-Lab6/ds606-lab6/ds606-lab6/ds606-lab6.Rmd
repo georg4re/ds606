@@ -1,0 +1,94 @@
+---
+title: "Lab 6: Inference for categorical data"
+author: "George Cruz"
+date: "`r Sys.Date()`"
+output: openintro::lab_report
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+library(infer)
+```
+
+### Exercise 2
+
+```{r}
+no_helmet <- yrbss %>%
+  filter(helmet_12m == "never")
+no_helmet <- no_helmet %>%
+  mutate(text_ind = ifelse(text_while_driving_30d == "30", "yes", "no"))
+
+no_helmet %>% 
+  filter(text_ind == "yes") %>%
+  nrow(.)
+
+```
+```{r}
+nrow(yrbss)
+```
+
+463/13583 observations.
+
+```{r}
+no_helmet %>%
+  specify(response = text_ind, success = "yes") %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "prop") %>%
+  get_ci(level = 0.95)
+```
+
+
+### Exercise 3
+
+Insert any text here.
+
+```{r trend-girls}
+# Insert code for Exercise 2 here
+```
+
+
+### Exercise 3
+
+Insert any text here.
+
+```{r plot-prop-boys-arbuthnot}
+# Insert code for Exercise 3 here
+```
+
+
+### Exercise 4
+
+Insert any text here.
+
+```{r dim-present}
+# Insert code for Exercise 4 here
+```
+
+
+### Exercise 5
+
+Insert any text here.
+
+```{r count-compare}
+# Insert code for Exercise 5 here
+```
+
+
+### Exercise 6
+
+Insert any text here.
+
+```{r plot-prop-boys-present}
+# Insert code for Exercise 6 here
+```
+
+
+### Exercise 7
+
+Insert any text here.
+
+```{r find-max-total}
+# Insert code for Exercise 7 here
+```
+

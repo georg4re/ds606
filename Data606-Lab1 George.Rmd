@@ -1,0 +1,117 @@
+---
+title: "Lab 1: Intro to R"
+author: "George Cruz"
+date: "`r Sys.Date()`"
+output: openintro::lab_report
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+```
+
+### Exercise 1
+
+```{r view-girls-counts}
+arbuthnot$girls
+```
+
+
+### Exercise 2
+
+There is an apparent upward trend in the number of baptized girls per year, there was a marked decline between 1640 and 1660 and several drops along the way, the most marked one in the early 1700s.  The overall trend is that more girls get baptized each year, 
+
+```{r trend-girls}
+ggplot(data = arbuthnot, aes(x = year, y = girls)) + 
+  geom_line()
+```
+
+
+### Exercise 3
+
+When we plot to see the proportion of newborns that were boys we see that, for these years, the proportion of boys ranges between 51 and 53% which seems to indicate that more boys than girls were born during these years.
+
+```{r plot-prop-boys-arbuthnot}
+# Add a total column to the data
+arbuthnot <- arbuthnot %>%
+  mutate(total = boys + girls)
+
+#Calculate the boy to girl ratio per year
+arbuthnot <- arbuthnot %>%
+  mutate(boy_to_girl_ratio = boys / girls)
+
+#calculate the boy ratio per year
+arbuthnot <- arbuthnot %>%
+  mutate(boy_ratio = boys / total)
+
+arbuthnot <- arbuthnot %>%
+  mutate(more_boys = boys > girls)
+
+ggplot(data = arbuthnot, aes(x = year, y = boy_ratio)) + 
+  geom_line()
+```
+
+
+### Exercise 4
+
+The present data goes from 1941 to 2002.  We have three variables: year, boys and girls.
+
+```{r dim-present}
+# Insert code for Exercise 4 here
+present %>%
+  summarize(minYear = min(year), maxYear = max(year))
+glimpse(present)
+```
+
+
+### Exercise 5
+
+The present numbers are of a significant greater magnitude than the ones in arbuthnot.  The arbuthnot dataframe is also longer as it spans about 20 more years.
+
+```{r count-compare}
+arbuthnot$total 
+```
+```{r}
+present$boys+present$girls
+```
+
+
+### Exercise 6
+
+It appears that arbuthnot observation holds true that boys are born in a greater proportion than girls. Even tho the ratio is declining over time, boys are born about 51% of the time. 
+
+```{r plot-prop-boys-present}
+# Insert code for Exercise 6 here
+# Add a total column to the data
+present <- present %>%
+  mutate(total = boys + girls)
+
+#Calculate the boy to girl ratio per year
+present <- present %>%
+  mutate(boy_to_girl_ratio = boys / girls)
+
+#calculate the boy ratio per year
+present <- present %>%
+  mutate(boy_ratio = boys / total)
+
+present <- present %>%
+  mutate(more_boys = boys > girls)
+
+ggplot(data = present, aes(x = year, y = boy_ratio)) + 
+  geom_line()
+```
+
+
+### Exercise 7
+
+In 1961 we saw the greatest total number of births. 
+
+```{r find-max-total}
+# I calculated the total in the previous exercise.
+# If we need to calculate it here, simply uncomment the next two lines 
+# present <- present %>%
+#  mutate(total = boys + girls)
+present %>%
+  arrange(desc(total))
+```
+

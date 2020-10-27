@@ -1,0 +1,51 @@
+---
+title: "DS606-Presentation"
+author: "George Cruz"
+date: "9/30/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## R Markdown
+
+### 3.39 Grade distributions. 
+Each row in the table below is a proposed grade distribution for a class. Identify
+each as a valid or invalid probability distribution, and explain your reasoning
+
+- (a) 0.3 0.3 0.3 0.2 0.1
+- (b) 0 0 1 0 0
+- (c) 0.3 0.3 0.3 0 0
+- (d) 0.3 0.5 0.2 0.1 -0.1
+- (e) 0.2 0.4 0.2 0.1 0.1
+- (f) 0 -0.1 1.1 0 0
+
+```{r}
+is_valid <- function(vec) { 
+  result <- "Valid"
+  if (sum(vec) != 1) {
+    result <- "Invalid, Sum needs to total 1"
+  }
+  if (any(vec < 0 ) ) { 
+    result <- "Invalid, probability cannot be negative"
+  }
+  if (any(vec > 1 )) { 
+    result <- "Invalid, probabilities must be between 0 and 1"
+  }
+  
+  return(result)
+} 
+```
+
+```{r}
+cat("Vector a is: ", is_valid(c(0.3, 0.3, 0.3, 0.2, 0.1)), "\n")
+cat("Vector b is: ", is_valid(c(0, 0, 1, 0, 0)), "\n")
+cat("Vector c is: ", is_valid(c(0.3, 0.3, 0.3, 0, 0)), "\n")
+cat("Vector d is: ", is_valid(c(0.3, 0.5, 0.2, 0.1, -0.1)), "\n")
+cat("Vector e is: ", is_valid(c(0.2, 0.4, 0.2, 0.1, 0.1)), "\n")
+cat("Vector f is: ", is_valid(c(0,-0.1,1.1,0,0)), "\n")
+
+```
+

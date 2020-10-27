@@ -1,0 +1,126 @@
+---
+title: "DS606-Lab2"
+author: "George Cruz"
+date: "`r Sys.Date()`"
+output: openintro::lab_report
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+```
+
+```{r}
+ggplot(data = nycflights, aes(x = dep_delay)) +
+  geom_histogram()
+
+ggplot(data = nycflights, aes(x = dep_delay)) +
+  geom_histogram(binwidth = 15)
+
+ggplot(data = nycflights, aes(x = dep_delay)) +
+  geom_histogram(binwidth = 150)
+```
+
+### Exercise 1
+
+It appears that some flights are leaving before their departure time and this is not apparent in the first histogram with the lower binwidth. 
+
+```{r code-chunk-label}
+lax_flights <- nycflights %>%
+  filter(dest == "LAX")
+ggplot(data = lax_flights, aes(x = dep_delay)) +
+  geom_histogram()
+
+lax_flights %>%
+  summarise(mean_dd   = mean(dep_delay), 
+            median_dd = median(dep_delay), 
+            n         = n())
+```
+
+### Exercise 2
+
+```{r}
+sfo_feb_flights <- nycflights %>%
+  filter(dest == "SFO", month == 2)
+sfo_feb_flights %>% summarise(count = n())
+```
+68 flights departed to San Francisco in February.
+
+### Exercise 3
+```{r}
+ggplot(data = sfo_feb_flights, aes(x = arr_delay)) +
+  geom_histogram()
+
+sfo_feb_flights %>%
+  summarise(median_ad = median(arr_delay), iqr_ad = IQR(arr_delay), n_flights = n())
+```
+The distribution is right-skewed and unimodal.  The median and IQR would be the best summary statistics to avoid variability due to the few outliers. The Median arrival delay is -11 and the IQR is 23.25
+
+### Exercise 4
+```{r}
+sfo_feb_flights %>%
+  group_by(carrier) %>%
+  summarise(median_ad = median(arr_delay), iqr_ad = IQR(arr_delay), n_flights = n())
+```
+Delta Airlines (DL) and United Airlines (UA) have the most variability in arrival delays. 
+
+### Exercise 5
+```{r}
+nycflights %>%
+  group_by(month) %>%
+  summarise(mean_dd = mean(dep_delay)) %>%
+  arrange(desc(mean_dd))
+```
+```{r}
+nycflights %>%
+  group_by(month) %>%
+  summarise(median_dd = median(dep_delay)) %>%
+  arrange(desc(median_dd))
+```
+The Median is a more robust value as it is less susceptible to outliers.  In this case, I think measuring the outliers and thus, using the mean, would give us a better chance to avoid most delays. 
+
+### Exercise 6
+```{r}
+nycflights <- nycflights %>%
+  mutate(dep_type = ifelse(dep_delay < 5, "on time", "delayed"))
+
+nycflights %>%
+  group_by(origin) %>%
+  summarise(ot_dep_rate = sum(dep_type == "on time") / n()) %>%
+  arrange(desc(ot_dep_rate))
+```
+
+Based only On Time Departure Percentage, La Guardia would be the logical choice.
+
+```{r}
+ggplot(data = nycflights, aes(x = origin, fill = dep_type)) +
+  geom_bar()
+```
+
+### Exercise 7
+```{r}
+nycflights <- nycflights %>%
+  mutate(avg_speed = distance/(air_time/60))
+head(nycflights)
+```
+
+
+### Exercise 8
+```{r}
+ggplot(nycflights, aes(distance, avg_speed )) +
+        geom_point(size=1, shape=15)
+```
+
+There appears to be a non-linear relationship between avg_speed and distance.  There is an increase of avg speed when distance increases.  
+
+
+### Exercise 9
+```{r}
+airlines <- c("AA", "DL", "UA")
+selectedFlights <- nycflights %>%
+  filter(carrier %in% airlines)
+
+qplot(x = dep_delay, y = arr_delay, data = selectedFlights, color = carrier)
+```
+
+George Cruz 

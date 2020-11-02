@@ -229,26 +229,90 @@ As n lowers, the distribution's spread grows.  If n increases the spread gets sm
 **Is there convincing evidence that those who sleep 10+ hours per day are more likely to strength train every day of the week? As always, write out the hypotheses for any tests you conduct and outline the status of the conditions for inference. If you find a significant difference, also quantify this difference with a confidence interval.**
 
 ```{r}
+
+
 slept_10 <- yrbss %>%
   mutate(slept_10 = ifelse(school_night_hours_sleep == "10+", "yes", "no")) %>%
-  filter(!is.na(slept_10)) %>%
-  count(slept_10) %>%
-  mutate(p = n /sum(n))
+  filter(!is.na(slept_10))
 
-slept_10
+total_slept <- slept_10 %>%
+  count(slept_10) %>%
+  mutate( p = n/sum(n))
+
+p <- 0.02561816
+
+slept_10 %>%
+  specify(response = slept_10, success = "yes") %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "prop") %>%
+  get_ci(level = 0.95)
+
+n <- nrow(slept_10)
+z <- 1.96
+se <- z*sqrt((p*(1-p))/n)
+
+me_sleep<- z * se
+me_sleep
+
 ```
+
+We're 95% confident the mean of people that sleep 10 hours or more is between 0.0229 and 0.0285 with a margin of error of 0.0054.
 
 ```{r}
 
 strength_trained <- yrbss %>%
   mutate(trained = ifelse(strength_training_7d == 7, "yes", "no")) %>%
-  filter(!is.na(trained)) %>%
-  count(trained) %>%
-  mutate(p = n /sum(n))
+  filter(!is.na(trained)) 
 
-strength_trained
+total_trained <- strength_trained %>%
+  count(trained) %>%
+  mutate( p = n/sum(n))
+
+p <- 0.1680503
+
+strength_trained %>%
+  specify(response = trained, success = "yes") %>%
+  generate(reps = 1000, type = "bootstrap") %>%
+  calculate(stat = "prop") %>%
+  get_ci(level = 0.95)
+
+n <- nrow(strength_trained)
+z <- 1.96
+se <- z*sqrt((p*(1-p))/n)
+
+me_trained<- z * se
+me_trained
+
 ```
 
+We're 95% confident the mean of people that strength trained everyday is between 0.1611 and 0.01744 with a margin of error of 0.0129.
+
+There doesn't seem to be conclusive evidence to state that those that slept over 10 hours are more likely to strength train as the numbers are very disimilar. 
+
+### Exercise 10 
+
+There would be a 5% chance of detecting a change. 
+A type 1 error is also known as a false positive and occurs when a researcher incorrectly rejects a true null hypothesis. This means that your report that your findings are significant when in fact they have occurred by chance.
+
+
+### Exercise 11
+
+Suppose you’re hired by the local government to estimate the proportion of residents that attend a religious service on a weekly basis. According to the guidelines, the estimate must have a margin of error no greater than 1% with 95% confidence. You have no idea what to expect for p. How many people would you have to sample to ensure that you are within the guidelines?
+Hint: Refer to your plot of the relationship between p and margin of error. This question does not require using a dataset.
+
+```{r}
+# margin of error is maximized when p = 0.5 
+p <- 0.5
+me <- 0.01
+z <- 1.96 #95% confidence cv
+
+n <- (p ** 2)/((me/1.96)** 2)
+
+n
+
+```
+
+I would need to sample 9,604 people. 
 
 
 ...

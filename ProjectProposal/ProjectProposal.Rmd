@@ -9,58 +9,158 @@ output: openintro::lab_report
 
 ```{r setup, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
 # load data
+library(tidyverse)
+library(scales)
+library(infer)
+library(psych)
+library(httr)
+library(jsonlite)
+```
 
+The Data Set was obtained from Kaggle.  This dataset was collected using the YouTube API.
+
+**Loading the Data.**
+```{r}
+#Get the videos csv
+raw_video_df <- read_csv(file="https://raw.githubusercontent.com/georg4re/ds606/main/data/USvideos.csv",quote = "\"")
+```
+
+```{r}
+#get the categories JSON
+url <- paste("https://raw.githubusercontent.com/georg4re/ds606/main/data/US_category_id.json", sep="")
+res <- GET(url)
+data <- fromJSON(rawToChar(res$content))
+
+category_df <- data$items %>%
+  flatten(.) %>%
+  rename(category=snippet.title)
+
+```
+
+**Joining the data and the Categories**
+```{r}
+category_df <- category_df %>%
+  rename(category_id = id)
+category_df$category_id <- as.numeric(category_df$category_id)
+
+
+video_df <- raw_video_df %>%
+  left_join(category_df) %>%
+  select(video_id,
+         trending_date,
+         title,
+         channel_title,
+         category,
+         publish_time, 
+         tags, 
+         views, 
+         likes, 
+         dislikes, 
+         comment_count,
+         comments_disabled,
+         ratings_disabled,
+         video_error_or_removed,
+         description
+         )
+```
+
+
+
+**A snippet**
+```{r}
+glimpse(video_df)
+```
+
+
+```{r}
+knitr::kable(head(video_df%>% select(-description),10))
 ```
 
 
 ### Research question 
 
 **You should phrase your research question in a way that matches up with the scope of inference your dataset allows for.**
-
-
+Is it possible to predict based on these variables or a combination of them the popularity of a youtube video in America?
 
 ### Cases 
 
 **What are the cases, and how many are there?**
-
-
+Each observation represents a video in Youtube.  There are 40,949 observations. 
 
 ### Data collection 
 
 **Describe the method of data collection.**
-
+Data was obtained from a [Kaggle data set.](https://www.kaggle.com/datasnaek/youtube-new?select=USvideos.csv)
 
 
 ### Type of study 
 
 **What type of study is this (observational/experiment)?**
-
+This is an observational study based on the obervations captured in this data.
 
 
 ### Data Source 
 
 **If you collected the data, state self-collected. If not, provide a citation/link.**
-
-
+Data was obtained from a [Kaggle data set.](https://www.kaggle.com/datasnaek/youtube-new?select=USvideos.csv)
 
 
 ### Dependent Variable
 
 **What is the response variable? Is it quantitative or qualitative?**
-
+The response variable will be the prediction. It is qualitative.
 
 
 ### Independent Variable
 
 **You should have two independent variables, one quantitative and one qualitative.**
-
+Category, likes, comments and tags.  Likes is quantitative, the others are qualitative.
 
 
 ### Relevant summary statistics 
 
 **Provide summary statistics for each the variables. Also include appropriate visualizations related to your research question (e.g. scatter plot, boxplots, etc). This step requires the use of R, hence a code chunk is provided below. Insert more code chunks as needed.**
 
+*Summary Statistics*
+
 ```{r}
+summary(video_df)
+```
+
+
+```{r}
+describe(video_df %>% select(views, likes, dislikes))
+```
+
+```{r}
+ggplot(video_df, aes(x=views, y=likes, color = category)) +
+    geom_point(shape=1)
+```
+
+
+We see a clear tendency of some categories to gather more views than others. 
+
+```{r}
+video_categories <- video_df %>%
+  group_by(category) %>%
+  summarise(
+         views_sum = sum(views),
+         likes_sum = sum(likes),
+         dislikes_sum = sum(dislikes))
+
+knitr::kable(video_categories)
 
 ```
+
+
+```{r}
+ggplot(video_categories, aes(factor(category), likes_sum, fill = category)) + 
+  geom_bar(stat="identity", position = "dodge") + 
+  scale_fill_brewer(palette = "Set1") + 
+  theme(axis.title.x=element_blank(),
+        axis.text.x=element_blank(),
+        axis.ticks.x=element_blank())
+```
+
+We can see the *Music* category seems to be the one gathering more likes. Further analysis is needed to identify and analyse the tags associated with the different videos and how the presence of these tags might help answer the initial question.
 ...

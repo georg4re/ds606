@@ -1,0 +1,6 @@
+"0","ggplot(video_categories"
+"0","         , aes(y=reorder(factor(category), likes_sum), "
+"0","                             x=likes_sum, "
+"0","                             fill = category)) + "
+"0","  geom_bar(stat=""identity"", position = ""dodge"") + "
+"0","  scale_fill_brewer(palette = ""Set2"")"

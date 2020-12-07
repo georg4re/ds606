@@ -1,0 +1,2 @@
+"0","#Get the videos csv"
+"0","raw_video_df <- read_csv(file=""https://raw.githubusercontent.com/georg4re/ds606/main/data/USvideos.csv"",quote = ""\"""")"

@@ -1,0 +1,256 @@
+---
+title: "Youtube Most Liked Videos"
+author: "George Cruz"
+date: "12/5/2020"
+output: 
+  prettydoc::html_pretty:
+    theme: tactile
+    highlight: github
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r, echo=FALSE, warning=FALSE, message=FALSE}
+library(tidyverse)
+library(scales)
+library(infer)
+library(psych)
+library(httr)
+library(jsonlite)
+library(here)
+```
+
+# Introduction
+
+![youtube logo](images/youtube.jpg)
+
+YouTube is an American online video-sharing platform headquartered in San Bruno, California. Three former PayPal employees—Chad Hurley, Steve Chen, and Jawed Karim—created the service in February 2005. Google bought the site in November 2006 for US$1.65 billion; YouTube now operates as one of Google's subsidiaries.
+
+YouTube allows users to upload, view, rate, share, add to playlists, report, comment on videos, and subscribe to other users. It offers a wide variety of user-generated and corporate media videos. Available content includes video clips, TV show clips, music videos, short and documentary films, audio recordings, movie trailers, live streams, and other content such as video blogging, short original videos, and educational videos.
+
+Because a video's popularity influences on the amount of money its creators make in the platform, it is of interest to determine if any relationship exists between a video's category and its popularity.  Other relationships might also be explored. 
+
+# The Data
+The Data Set was obtained from Kaggle.  This dataset was collected using the YouTube API.
+
+### Loading the Data.
+```{r, results='hide', warning=FALSE, message=FALSE}
+#Get the videos csv
+raw_video_df <- read_csv(file="https://raw.githubusercontent.com/georg4re/ds606/main/data/USvideos.csv",quote = "\"")
+```
+
+```{r}
+#get the categories JSON
+url <- paste("https://raw.githubusercontent.com/georg4re/ds606/main/data/US_category_id.json", sep="")
+res <- GET(url)
+data <- fromJSON(rawToChar(res$content))
+
+category_df <- data$items %>%
+  flatten(.) %>%
+  rename(category=snippet.title)
+
+```
+
+### Joining the data and the Categories
+Because the Categories are provided in a separate JSON, we need to join them to the data frame, I will take the opportunity to remove several variables not needed in this study: 
+- trending_date
+- channel_title
+- publish_time
+- comments_disabled *(although this could be used to study the relationship between the comments being enabled or disabled and the amount of likes, it is out of the scope of this endeavor.)*
+- ratings_disabled
+- video_error_or_removed
+
+```{r,results='hide', warning=FALSE, message=FALSE}
+category_df <- category_df %>%
+  rename(category_id = id)
+category_df$category_id <- as.numeric(category_df$category_id)
+
+
+video_df <- raw_video_df %>%
+  left_join(category_df) %>%
+  select(video_id,
+         title,
+         category,
+         tags, 
+         views, 
+         likes, 
+         dislikes, 
+         comment_count
+         )
+```
+
+### A snippet
+```{r}
+glimpse(video_df)
+```
+
+```{r}
+knitr::kable(head(video_df,10))
+```
+### Research question 
+
+**Is it possible to predict based on these variables or a combination of them the popularity of a youtube video in America?**
+
+### Cases 
+
+Each observation represents a video in Youtube.  There are 40,949 observations. 
+
+### Data collection 
+
+Data was obtained from a [Kaggle data set.](https://www.kaggle.com/datasnaek/youtube-new?select=USvideos.csv)
+
+
+### Type of study 
+
+This is an observational study based on the obervations captured in this data.
+
+
+### Data Source 
+
+**If you collected the data, state self-collected. If not, provide a citation/link.**
+Data was obtained from a [Kaggle data set.](https://www.kaggle.com/datasnaek/youtube-new?select=USvideos.csv)
+
+
+### Dependent Variable
+
+**What is the response variable? Is it quantitative or qualitative?**
+The response variable will be the prediction. It is qualitative.
+
+
+### Independent Variable
+
+**You should have two independent variables, one quantitative and one qualitative.**
+Category, likes, comments and tags.  Likes is quantitative, the others are qualitative.
+
+
+### Relevant summary statistics 
+
+**Provide summary statistics for each the variables. Also include appropriate visualizations related to your research question (e.g. scatter plot, boxplots, etc). This step requires the use of R, hence a code chunk is provided below. Insert more code chunks as needed.**
+
+*Summary Statistics*
+
+```{r}
+summary(video_df)
+```
+
+
+```{r}
+describe(video_df %>% select(views, likes, dislikes))
+```
+
+```{r}
+ggplot(video_df, aes(x=views, y=likes, color = category)) +
+    geom_point(shape=1)
+```
+
+
+We see a clear tendency of some categories to gather more views than others. Now, let's gather the categories and clean up their names a little:
+
+```{r}
+video_categories <- video_df %>%
+  group_by(category) %>%
+  summarise(
+         views_sum = sum(views),
+         likes_sum = sum(likes),
+         dislikes_sum = sum(dislikes)) %>%
+  arrange(desc(likes_sum)) 
+  
+
+knitr::kable(video_categories)
+
+```
+
+
+```{r, warning=FALSE}
+ggplot(video_categories
+         , aes(y=reorder(factor(category), likes_sum), 
+                             x=likes_sum, 
+                             fill = category)) + 
+  geom_bar(stat="identity", position = "dodge") + 
+  scale_fill_brewer(palette = "Set2")
+```
+
+We can see the *Music* category seems to be the one gathering more likes. Further analysis is needed to identify and analyze the tags associated with the different videos and how the presence of these tags might help answer the initial question.
+
+Let's take a look at the different categories in video_df:
+
+```{r}
+cat_frequency <- table(video_df$category)%>% 
+        as.data.frame() %>% 
+        arrange(desc(Freq))
+knitr::kable(cat_frequency)
+```
+
+Looking at this data, we can see that although Music has by far the most likes, it is not the most used category.  We can probably create a proportion table for categories.
+
+```{r}
+
+cat_prop <- prop.table(table(video_df$category))
+knitr::kable(cat_prop %>% 
+  as.data.frame() %>%
+  arrange(desc(Freq)))
+```
+
+**Tempted to do a pie chart**
+As visualizations go, I wanted to place a pie chart here but...the professor doesn't like Pie charts so that table should suffice. 
+
+What we will do, is probably get a proportion table for the likes per category and then formulate a null hypothesis to test with the chi-square.
+
+```{r}
+video_categories <- video_categories %>% 
+  mutate(likes_prop = likes_sum /(sum(likes_sum)), total_likes=sum(likes_sum))
+knitr::kable(video_categories)
+```
+
+I will also add an expected column based on the proportion_table.
+
+```{r, message=FALSE}
+cat_df <- cat_prop %>% 
+  as.data.frame()%>%
+  rename(category = Var1,
+         prop = Freq)
+
+video_categories <- video_categories %>% 
+  left_join(cat_df) %>%
+  mutate(expected = total_likes * prop)
+
+knitr::kable(video_categories)
+
+```
+
+
+### Chi-Squared
+
+We can formulate a Null Hypothesis with our data: 
+
+- **H0** - There is no relationship between category and the number of likes a video gets
+- **H1** - There is a marked relationship between category and likes. 
+
+```{r}
+k <- 16  #16 categories
+df <- k - 1
+chi.Sq <- 0
+
+for(i in 1:16)
+{
+  chi.Sq <- chi.Sq + ((video_categories$likes_sum[i] - video_categories$expected[i])^2 / video_categories$expected[i])
+}
+
+p.Value <- pchisq(chi.Sq, df=df, lower.tail=FALSE)
+paste('p-value is ',p.Value )
+```
+
+Because the P-Value is so small as to approach 0, we must reject the Null Hypothesis and accept the Alternate hypothesis that says:
+**There is a marked relationship between category and likes**
+
+
+### Regression with Categorical variable 
+
+```{r}
+video_df$category.f <- factor(video_df$category)  ###Turn the category into a factor to use with lm
+
+summary(lm(likes ~ category.f, data = video_df))
+```
+

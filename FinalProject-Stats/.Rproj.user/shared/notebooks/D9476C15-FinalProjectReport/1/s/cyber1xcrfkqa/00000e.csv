@@ -1,0 +1,4 @@
+"0","cat_frequency <- table(video_df$category)%>% "
+"0","        as.data.frame() %>% "
+"0","        arrange(desc(Freq))"
+"0","knitr::kable(cat_frequency)"

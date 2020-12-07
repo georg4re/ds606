@@ -1,0 +1,12 @@
+"0","video_categories <- video_df %>%"
+"0","  group_by(category) %>%"
+"0","  summarise("
+"0","         views_sum = sum(views),"
+"0","         likes_sum = sum(likes),"
+"0","         dislikes_sum = sum(dislikes)) %>%"
+"0","  arrange(desc(likes_sum)) "
+"2","`summarise()` ungrouping output (override with `.groups` argument)
+"
+"0","  "
+"0",""
+"0","knitr::kable(video_categories)"

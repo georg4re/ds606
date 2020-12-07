@@ -6,13 +6,15 @@ output:
   prettydoc::html_pretty:
     theme: tactile
     highlight: github
+    toc: true
+
 ---
 
 ```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
-```{r, echo=FALSE, warning=FALSE, message=FALSE}
+```{r, warning=FALSE, message=FALSE}
 library(tidyverse)
 library(scales)
 library(infer)
@@ -20,6 +22,7 @@ library(psych)
 library(httr)
 library(jsonlite)
 library(here)
+library(car)
 ```
 
 # Introduction
@@ -55,12 +58,19 @@ category_df <- data$items %>%
 
 ### Joining the data and the Categories
 Because the Categories are provided in a separate JSON, we need to join them to the data frame, I will take the opportunity to remove several variables not needed in this study: 
+
 - trending_date
+
 - channel_title
+
 - publish_time
+
 - comments_disabled *(although this could be used to study the relationship between the comments being enabled or disabled and the amount of likes, it is out of the scope of this endeavor.)*
+
 - ratings_disabled
+
 - video_error_or_removed
+
 
 ```{r,results='hide', warning=FALSE, message=FALSE}
 category_df <- category_df %>%
@@ -89,9 +99,9 @@ glimpse(video_df)
 ```{r}
 knitr::kable(head(video_df,10))
 ```
-### Research question 
+# Research question 
 
-**Is it possible to predict based on these variables or a combination of them the popularity of a youtube video in America?**
+**Is it possible to predict, based on the category or a combination of other factors, the popularity of a youtube video in America?**
 
 ### Cases 
 
@@ -116,16 +126,16 @@ Data was obtained from a [Kaggle data set.](https://www.kaggle.com/datasnaek/you
 ### Dependent Variable
 
 **What is the response variable? Is it quantitative or qualitative?**
-The response variable will be the prediction. It is qualitative.
+The response variable will be the prediction of number of likes. It is quantitative.
 
 
 ### Independent Variable
 
 **You should have two independent variables, one quantitative and one qualitative.**
-Category, likes, comments and tags.  Likes is quantitative, the others are qualitative.
+Category, likes, views, comment_count. Likes, views, and comment_count are quantitative, Category is qualitative.
 
 
-### Relevant summary statistics 
+# Relevant summary statistics 
 
 **Provide summary statistics for each the variables. Also include appropriate visualizations related to your research question (e.g. scatter plot, boxplots, etc). This step requires the use of R, hence a code chunk is provided below. Insert more code chunks as needed.**
 
@@ -135,18 +145,22 @@ Category, likes, comments and tags.  Likes is quantitative, the others are quali
 summary(video_df)
 ```
 
+We see that the mean like per video is 74,267.  We can also see other meaningful statistics in the quantitative variables that might help in our study. 
 
 ```{r}
-describe(video_df %>% select(views, likes, dislikes))
+describe(video_df %>% select(views, likes, dislikes, comment_count))
 ```
+
+Let's take a look at a scatter plot of views and likes:
 
 ```{r}
 ggplot(video_df, aes(x=views, y=likes, color = category)) +
     geom_point(shape=1)
 ```
 
+# Category Analysis
 
-We see a clear tendency of some categories to gather more views than others. Now, let's gather the categories and clean up their names a little:
+We see a clear tendency of some categories to gather more likes than others. Now, let's gather the categories and clean up their names a little:
 
 ```{r}
 video_categories <- video_df %>%
@@ -169,7 +183,10 @@ ggplot(video_categories
                              x=likes_sum, 
                              fill = category)) + 
   geom_bar(stat="identity", position = "dodge") + 
-  scale_fill_brewer(palette = "Set2")
+  scale_fill_brewer(palette = "Set2")+ 
+  labs(title="Likes per Category") + 
+  xlab("Likes") + 
+  ylab("Category")
 ```
 
 We can see the *Music* category seems to be the one gathering more likes. Further analysis is needed to identify and analyze the tags associated with the different videos and how the presence of these tags might help answer the initial question.
@@ -248,9 +265,126 @@ Because the P-Value is so small as to approach 0, we must reject the Null Hypoth
 
 ### Regression with Categorical variable 
 
+
 ```{r}
 video_df$category.f <- factor(video_df$category)  ###Turn the category into a factor to use with lm
 
-summary(lm(likes ~ category.f, data = video_df))
+lm_output <- lm(likes ~ category.f, data = video_df)
 ```
+
+Let's take a look at the regression model: 
+```{r}
+lm_output
+```
+
+Because we have a large number of factors, reading this is a little confusing, but let's take a look: 
+
+- Our Intercept is: 11,056, this means that the avg likes is 11056
+For a **comedy video**, we will add 51,525.8 likes
+For a **News & Politics** video we will remove -3,758
+
+Let's take a further look down the model: 
+
+```{r}
+summary(lm_output)
+```
+
+We can see that some of these factors are significant: i.e. Comedy, Entertainment, Film, Gaming, Music, Nonprofit, People and Sports.
+
+Regrettably, the adjusted R-squared is very low. This means that, even though we may have a trend, the category alone does not explain the number of likes. It seems to indicate that the number of likes are affected about 8% by the category. 
+
+We could write the prediction formula this way: 
+
+Y = b0 + b1 * category
+
+Number of Likes = 11,056.4 + Estimate(Factor)
+
+i.e. 
+
+We would predict that a New Film & Animation video will end up with: 
+
+number of likes = 11,056.4 + 59731.4 
+
+**Note** 
+
+As we have determined that this model is not the only or the most significant factor determining the number of likes a video will get, we have also not studied the period of time needed to gather these likes. 
+
+
+# Exploring other factors 
+
+Let's take a look at a scatterPlot Matrix of the quantitative variables in our dataset:
+
+```{r, message=FALSE, warning=FALSE}
+
+scatterplotMatrix(video_df[5:8])
+```
+
+Using Log10 to scale the number of likes and comment_count we get the following scatterplot: 
+
+```{r, message=FALSE, warning=FALSE}
+ggplot(video_df,
+       aes(x = log10(comment_count), 
+           y = log10(likes))) +
+  geom_point(color= "steelblue") +
+  geom_smooth(method = "lm")+ 
+  labs(title="Relationship between Comment_count and Likes (Scaled") + 
+  xlab("Comment count") + 
+  ylab("Likes")
+```
+
+This shows a (expected) relationship between the number of likes and comments.  Would it be possible to fit a linear regression model using comment_counts to predict how many likes a video will get? 
+
+### Linear regression with Comment count.
+
+```{r}
+comment_lm <- lm(likes ~ comment_count, video_df)
+comment_lm
+```
+
+We get a large intercept: 32,787.  But this seems to indicate that for every comment, we see an increase of about 5 likes. 
+
+Y = b0 + b1 * comment_count
+
+```{r}
+summary(comment_lm)
+```
+
+These values show an important relationship between the number of comments and likes. The $R^2$ of 0.6449 indicates that 64.5% of the likes can be explained by the comments. 
+
+So, our fitted model will be something like this: 
+
+Number of Likes = 32,787.4 + 4.911 * comment_count
+
+
+
+### Can we combine comment_count with views and dislikes?
+
+If we try to fit a model with those variables we get:
+
+```{r}
+multi_variate_lm <- lm(likes ~ comment_count + views + dislikes, video_df)
+
+multi_variate_lm
+```
+
+
+This indicates that for each comment, we can add about 4 likes. We will get a like for about every 100 views and each dislike will reduce about 2 likes from our total. 
+
+```{r}
+summary(multi_variate_lm)
+```
+
+The adjusted $R^2$ is 0.884 which indicates a high level of incidence in the number of likes for these three variables. 
+
+# What does all this mean? 
+
+Based on our Null Hypothesis analysis we were able to identify a correlation between the video category and the number of likes attained. At the very least, we were not able to accept the null hypothesis that no relation existed.  Further analysis showed that the $R^2$ value for such relationship was too low for us to properly fit a model that would allow us to calculate the number of likes based on the category alone. 
+
+We expanded our analysis to other variables.  The **comment_count** proved to be a better predictor of likes and a multivariate regression incorporating views and dislikes gave us an adjusted $R^2$ of 88%.  In terms of the scope of this analysis, the number of comments, views and dislikes are a better predictor than category for the number of likes a video will get. 
+
+# Next Steps
+
+In terms of practical use, the results found in this analysis do not give us a silver bullet on how to gather likes in a Youtube video.  I would like to expand this analysis to incorporate the tags and the description of the video with other statistical and machine learning methods as Random Forest or SVM to gain a better understanding of the factors that better influence the number of likes a video gets. 
+
+
 

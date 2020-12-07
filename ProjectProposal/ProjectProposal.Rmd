@@ -1,11 +1,11 @@
 ---
-title: "DS606-Project Proposal"
+title: "DS606-Final Project"
 author: "George Cruz"
 date: "`r Sys.Date()`"
 output: openintro::lab_report
 ---
 
-### Data Preparation
+# Youtube Most Liked Videos
 
 ```{r setup, echo=TRUE, results='hide', warning=FALSE, message=FALSE}
 # load data
@@ -20,7 +20,7 @@ library(jsonlite)
 The Data Set was obtained from Kaggle.  This dataset was collected using the YouTube API.
 
 **Loading the Data.**
-```{r}
+```{r, results='hide', warning=FALSE, message=FALSE}
 #Get the videos csv
 raw_video_df <- read_csv(file="https://raw.githubusercontent.com/georg4re/ds606/main/data/USvideos.csv",quote = "\"")
 ```
@@ -38,7 +38,7 @@ category_df <- data$items %>%
 ```
 
 **Joining the data and the Categories**
-```{r}
+```{r,results='hide', warning=FALSE, message=FALSE}
 category_df <- category_df %>%
   rename(category_id = id)
 category_df$category_id <- as.numeric(category_df$category_id)
@@ -63,8 +63,6 @@ video_df <- raw_video_df %>%
          description
          )
 ```
-
-
 
 **A snippet**
 ```{r}

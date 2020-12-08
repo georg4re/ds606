@@ -1,0 +1,173 @@
+---
+title: "Lab 8 - Introduction to Linear Regression"
+author: "George Cruz"
+date: "`r Sys.Date()`"
+output: openintro::lab_report
+---
+
+```{r load-packages, message=FALSE}
+library(tidyverse)
+library(openintro)
+library(statsr)
+```
+
+### Exercise 1
+
+**What are the dimensions of the dataset?**
+
+```{r code-chunk-label}
+dim(hfi)
+```
+
+The Dataset has 1458 rows and 123 columns. 
+
+
+### Exercise 2
+
+**What type of plot would you use to display the relationship between the personal freedom score, pf_score, and one of the other numerical variables? Plot this relationship using the variable pf_expression_control as the predictor. Does the relationship look linear? If you knew a country’s pf_expression_control, or its score out of 10, with 0 being the most, of political pressures and controls on media content, would you be comfortable using a linear model to predict the personal freedom score?**
+
+A scatterplot is particularly useful. 
+
+```{r, warning=FALSE, message=FALSE}
+
+ggplot(hfi, aes(x=pf_expression_control, y=pf_score)) + 
+  geom_point() + 
+  geom_smooth(method=lm) + 
+  xlab("Expression Control") + 
+  ylab("Freedom Score")
+```
+
+Because the relationship looks linear, we quantify the strength of the relationship with the correlation coefficient. 
+
+```{r}
+hfi %>%
+  summarise(cor(pf_expression_control, pf_score, use = "complete.obs"))
+```
+
+### Exercise 3
+
+**Looking at your plot from the previous exercise, describe the relationship between these two variables. Make sure to discuss the form, direction, and strength of the relationship as well as any unusual observations.**
+
+The relationship appears to have a positive correlation, with the Freedom Score increasing as the Expression Control increases.  
+
+```{r}
+#this isn't working, wondering if we should just remove rows with NA
+
+hf2 <- hfi %>% drop_na(pf_score) %>% drop_na(pf_expression_control)
+plot_ss(x = pf_expression_control, y = pf_score, data = hf2)
+```
+
+### Exercise 4
+
+I could not get the plot_ss to run interactively.
+```{r}
+m1 <- lm(pf_score ~ pf_expression_control, data = hfi)
+summary(m1)
+```
+
+### Exercise 5 
+Fit a new model that uses pf_expression_control to predict hf_score, or the total human freedom score. Using the estimates from the R output, write the equation of the regression line. What does the slope tell us in the context of the relationship between human freedom and the amount of political pressure on media content?
+
+```{r}
+m2 <- lm(hf_score ~ pf_expression_control, hfi)
+summary(m2)
+```
+
+The slope tells us that human freedom increases 0.349 for every 1 point increase in pf_expression_control. 
+
+```{r, warning=FALSE, message=FALSE}
+ggplot(data = hfi, aes(x = pf_expression_control, y = pf_score)) +
+  geom_point() +
+  stat_smooth(method = "lm", se = FALSE)
+
+```
+
+### Exercise 6 
+
+**If someone saw the least squares regression line and not the actual data, how would they predict a country’s personal freedom school for one with a 6.7 rating for pf_expression_control? Is this an overestimate or an underestimate, and by how much? In other words, what is the residual for this prediction?**
+
+```{r}
+4.61707 + 0.49143 * 6.7
+```
+
+They would predict the personal freedom score to be 7.91
+
+If we look at the actual value: 
+```{r}
+values <- hfi %>%
+  select(pf_score, pf_expression_control) %>%
+  filter(pf_expression_control >= 6.7 ) %>%
+  filter(pf_expression_control <= 6.8 ) %>%
+  summarise(avg = mean(pf_score))
+
+values
+```
+
+I could not find a pf_expression_control of 6.70 so I averaged the 6.75 values. 
+
+I would say the prediction will be underestimated. 
+
+```{r}
+ggplot(data = m1, aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0, linetype = "dashed") +
+  xlab("Fitted values") +
+  ylab("Residuals")
+```
+
+### Exercise 7 
+
+**Is there any apparent pattern in the residuals plot? What does this indicate about the linearity of the relationship between the two variables?**
+
+There is not an apparent pattern in the residuals plot although they appear to be distributely almost equally above and belowe the line. 
+
+```{r}
+ggplot(data = m1, aes(x = .resid)) +
+  geom_histogram(binwidth = 0.25) +
+  xlab("Residuals")
+```
+
+When using binwidth 25 as specified in the lab, the histogram is distorted. With a bin width 0f 0.25 we get a nearly normal distribution. 
+
+### Exercise 8
+**Based on the histogram and the normal probability plot, does the nearly normal residuals condition appear to be met?**
+
+Yes. 
+
+### Exercise 9
+
+**Based on the residuals vs. fitted plot, does the constant variability condition appear to be met?**
+
+Yes.
+
+### Exercise 10 
+
+**Choose another freedom variable and a variable you think would strongly correlate with it.. Produce a scatterplot of the two variables and fit a linear model. At a glance, does there seem to be a linear relationship?**
+
+```{r, warning=FALSE, message=FALSE}
+
+ggplot(data = hfi, aes(x = pf_religion, y = pf_score)) +
+  geom_point() +
+  stat_smooth(method = "lm", se = FALSE)
+
+```
+
+There appears to be a positive correlation especially on the countries with high degrees of religious freedom. 
+
+### Exercise 11
+**How does this relationship compare to the relationship between pf_expression_control and pf_score? Use the R2 values from the two model summaries to compare. Does your independent variable seem to predict your dependent one better? Why or why not?**
+
+```{r}
+m3 <- lm(pf_score ~ pf_religion, hfi)
+summary(m3)
+```
+
+The $R^2$ of this relationship is 24.67% vs the 57.72% of the pf_expression_control. 
+
+### Exercise 12
+
+I was surprised that the relationship between religious freedom and pf_score was not, at least, as strong as the relationship between pf_expression_control and pf_score. 
+
+
+...
+

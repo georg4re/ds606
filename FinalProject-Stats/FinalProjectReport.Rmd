@@ -36,7 +36,7 @@ YouTube allows users to upload, view, rate, share, add to playlists, report, com
 Because a video's popularity influences on the amount of money its creators make in the platform, it is of interest to determine if any relationship exists between a video's category and its popularity.  Other relationships might also be explored. 
 
 # The Data
-The Data Set was obtained from Kaggle.  This dataset was collected using the YouTube API.
+The Data Set was obtained from Kaggle.  This dataset was collected using the YouTube API. It includes several months (and counting) of data on daily trending YouTube videos. Data is included for the US, GB, DE, CA, and FR regions (USA, Great Britain, Germany, Canada, and France, respectively), with up to 200 listed trending videos per day.  I only used the US Data. The data consists of 40,949 videos between 2017 and 2018.
 
 ### Loading the Data.
 ```{r, results='hide', warning=FALSE, message=FALSE}

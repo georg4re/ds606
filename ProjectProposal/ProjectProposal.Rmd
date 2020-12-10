@@ -75,7 +75,7 @@ knitr::kable(head(video_df%>% select(-description),10))
 ```
 
 
-### Research question 
+.### Research question 
 
 **You should phrase your research question in a way that matches up with the scope of inference your dataset allows for.**
 Is it possible to predict based on these variables or a combination of them the popularity of a youtube video in America?
